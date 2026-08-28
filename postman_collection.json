@@ -1,0 +1,80 @@
+{
+  "info": {
+    "_postman_id": "35124f3f-6ceb-4b05-b5f3-27fcb24b263d",
+    "name": "Book Management API'",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57756472",
+    "_collection_link": "https://go.postman.co/collection/57756472-35124f3f-6ceb-4b05-b5f3-27fcb24b263d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create Book",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Books",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Get Book by ID",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Update Book",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": " { \r\n    \"title\": \"Ikigai\", \r\n    \"author\": \"Héctor García\", \r\n    \"category\": \"Self-help\", \r\n    \"price\": 349, \r\n    \"available\": true } ",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/books/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "books",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Book",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Get Books by Catagory",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}
