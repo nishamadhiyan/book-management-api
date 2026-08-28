@@ -37,6 +37,11 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("Book Management API is running");
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
         return bookService.getBookById(id)

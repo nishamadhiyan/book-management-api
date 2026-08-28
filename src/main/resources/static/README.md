@@ -4,10 +4,10 @@ A Spring Boot REST API for managing a book inventory, built as part of a Spring 
 
 ## Tech Stack
 - Java 17
-- Spring Boot 3.x
+- Spring Boot 4.x
 - Spring Web
 - Spring Data JPA (Hibernate)
-- MySQL
+- PostgreSQL (Render) / H2 (local development)
 - Maven
 - Postman (for testing)
 
@@ -21,22 +21,27 @@ src/main/java/com/example/bookmanagement
 
 ## Setup Instructions
 
-1. Clone the repository
-git clone https://github.com/nishamadhiyan/book-management-api.git
+### Local development
 
-2. Create the MySQL database
-```sql
-   CREATE DATABASE bookdb;
+The application can run locally without a database server by using the built-in H2 in-memory database:
+
+```bash
+./mvnw spring-boot:run
 ```
 
-3. Configure database credentials
-   - Copy `src/main/resources/application.properties.example` to `src/main/resources/application.properties`
-   - Replace `nisha@2330` with your actual MySQL root password
+The API and UI will be available at `http://localhost:8080`.
 
-4. Run the application
-./mvnw spring-boot:run
+### Render deployment
 
-   The API will start on `http://localhost:8080`
+For production, use a persistent Render PostgreSQL database. In the Render Web Service environment variables, configure:
+
+- `SPRING_DATASOURCE_URL` = your PostgreSQL JDBC URL, for example `jdbc:postgresql://<host>:5432/<database>`
+- `SPRING_DATASOURCE_USERNAME` = PostgreSQL username
+- `SPRING_DATASOURCE_PASSWORD` = PostgreSQL password
+
+Do not use the H2 `mem:` database in production if data must survive deployments/restarts.
+
+The frontend uses the same-origin API path `/books`, so it works both locally and on Render without hard-coded `localhost` URLs.
 
 ## API Endpoints
 

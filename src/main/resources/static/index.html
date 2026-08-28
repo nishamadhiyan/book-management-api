@@ -327,17 +327,35 @@
 </div>
 
 <script>
-const API_URL = 'http://localhost:8080/books';
+// Use the same origin in production and localhost when running locally.
+const API_URL = '/books';
 let allBooks = [];
 let activeCategory = null;
 
 async function loadBooks() {
   document.getElementById('subtitle').innerText = 'Loading catalog…';
-  const res = await fetch(API_URL);
-  allBooks = await res.json();
-  buildSidebarCategories();
-  renderStats();
-  applyFilter();
+
+  try {
+    const res = await fetch(API_URL, {
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) {
+      throw new Error(`GET ${API_URL} failed with HTTP ${res.status}`);
+    }
+
+    allBooks = await res.json();
+    buildSidebarCategories();
+    renderStats();
+    applyFilter();
+  } catch (error) {
+    console.error('Failed to load books:', error);
+    allBooks = [];
+    buildSidebarCategories();
+    renderStats();
+    renderTable([]);
+    document.getElementById('subtitle').innerText = 'Unable to load catalog. Check the server connection.';
+  }
 }
 
 function buildSidebarCategories() {
@@ -455,7 +473,10 @@ function resetForm() {
 }
 
 async function saveBook() {
+  const saveButton = document.getElementById('saveBtn');
+  const formError = document.getElementById('formError');
   const id = document.getElementById('bookId').value;
+
   const book = {
     title: document.getElementById('title').value.trim(),
     author: document.getElementById('author').value.trim(),
@@ -465,33 +486,64 @@ async function saveBook() {
   };
 
   if (!book.title || !book.author || !(book.price > 0)) {
-    document.getElementById('formError').style.display = 'block';
+    formError.innerText = 'Title and author are required and price must be greater than 0.';
+    formError.style.display = 'block';
     return;
   }
 
-  const url = id ? `${API_URL}/${id}` : API_URL;
-  const method = id ? 'PUT' : 'POST';
+  formError.style.display = 'none';
+  saveButton.disabled = true;
+  saveButton.innerText = id ? 'Saving…' : 'Adding…';
 
-  const res = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(book)
-  });
+  try {
+    const url = id ? `${API_URL}/${id}` : API_URL;
+    const method = id ? 'PUT' : 'POST';
 
-  if (!res.ok) {
-    alert('Something went wrong saving the book. Check the console for details.');
-    console.error(await res.text());
-    return;
+    console.log(`${method} ${url}`, book);
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(book)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`Failed to save book (${res.status}):`, errorText);
+      throw new Error(`Server returned HTTP ${res.status}`);
+    }
+
+    const savedBook = await res.json();
+    console.log('Book saved successfully:', savedBook);
+
+    closeModal();
+    await loadBooks();
+  } catch (error) {
+    console.error('Save book request failed:', error);
+    formError.innerText = 'Could not save the book. Please check the server and try again.';
+    formError.style.display = 'block';
+  } finally {
+    saveButton.disabled = false;
+    saveButton.innerText = id ? 'Save Changes' : 'Add Book';
   }
-
-  closeModal();
-  loadBooks();
 }
 
 async function deleteBook(id) {
   if (!confirm('Delete this book from the catalog?')) return;
-  await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-  loadBooks();
+
+  try {
+    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      throw new Error(`DELETE failed with HTTP ${res.status}`);
+    }
+    await loadBooks();
+  } catch (error) {
+    console.error('Delete book request failed:', error);
+    alert('Could not delete the book. Please try again.');
+  }
 }
 
 document.getElementById('modalOverlay').addEventListener('click', (e) => {
