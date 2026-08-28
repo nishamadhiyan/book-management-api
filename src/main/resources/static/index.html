@@ -2,122 +2,470 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Book Management System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Dashboard — Book Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; font-family: Arial, sans-serif; }
-  body { background: #f4f6f8; margin: 0; padding: 20px; }
-  h1 { text-align: center; color: #333; }
-  .container { max-width: 900px; margin: auto; }
-  .form-card, .search-card {
-    background: white; padding: 20px; border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 20px;
+  :root {
+    --ink: #16202A;
+    --paper: #F6F5F1;
+    --panel: #FFFFFF;
+    --line: #E4E1D8;
+    --muted: #7A8088;
+    --spine: #2F6F5E;
+    --spine-dark: #234F42;
+    --gold: #C9A15A;
+    --danger: #B3492F;
+    --shadow: 0 1px 2px rgba(22,32,42,0.04), 0 8px 24px rgba(22,32,42,0.06);
   }
-  .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-  .form-row input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 120px; }
-  .form-row label { display: flex; align-items: center; gap: 5px; }
-  button {
-    padding: 8px 16px; border: none; border-radius: 4px;
-    background: #2563eb; color: white; cursor: pointer;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    min-height: 100vh;
   }
-  button:hover { background: #1d4ed8; }
-  button.danger { background: #dc2626; }
-  button.danger:hover { background: #b91c1c; }
-  button.secondary { background: #6b7280; }
-  table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-  th { background: #f0f0f0; }
-  .actions { display: flex; gap: 6px; }
-  #formTitle { margin-top: 0; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 240px;
+    background: var(--ink);
+    color: #E8ECEF;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    flex-shrink: 0;
+  }
+  .brand {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .brand .mark {
+    width: 26px; height: 26px;
+    background: var(--spine);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: #8A93A0;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    margin-left: 36px;
+  }
+  .nav-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #5C6672;
+    margin: 18px 0 10px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    color: #C7CDD4;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border-left: 2px solid transparent;
+  }
+  .nav-item.active {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border-left: 2px solid var(--gold);
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); }
+  .cat-list { display: flex; flex-direction: column; gap: 2px; }
+  .cat-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    font-size: 11px;
+    color: #5C6672;
+    line-height: 1.6;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 16px;
+  }
+
+  /* ---------- Main ---------- */
+  .main { flex: 1; padding: 32px 40px; max-width: 1180px; }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 20px;
+  }
+  h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .subtitle { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+  .search-wrap { display: flex; gap: 10px; }
+  .search-wrap input {
+    width: 220px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 13.5px;
+    background: var(--panel);
+    font-family: 'Inter', sans-serif;
+  }
+  .search-wrap input:focus, .modal input:focus { outline: 2px solid var(--spine); outline-offset: 1px; }
+  .btn {
+    border: none; border-radius: 8px; padding: 9px 16px;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13.5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--spine); color: white; }
+  .btn-primary:hover { background: var(--spine-dark); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn-ghost:hover { background: #EFEDE5; }
+  .btn-danger-text { background: none; border: none; color: var(--danger); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .btn-edit-text { background: none; border: none; color: var(--spine-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+
+  /* ---------- Stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .stat-value { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; }
+  .stat-value.spine { color: var(--spine-dark); }
+
+  /* ---------- Table panel ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .panel-head h2 { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); padding: 10px 20px; border-bottom: 1px solid var(--line);
+    font-weight: 600;
+  }
+  tbody td { padding: 13px 20px; font-size: 13.5px; border-bottom: 1px solid #EFEDE5; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FAF9F5; }
+  .book-title { font-weight: 600; }
+  .book-id { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); }
+  .tag {
+    display: inline-block; padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; background: #EAF2EF; color: var(--spine-dark);
+    border-left: 3px solid var(--spine);
+  }
+  .avail-yes { color: var(--spine-dark); font-weight: 600; font-size: 12.5px; }
+  .avail-no { color: var(--danger); font-weight: 600; font-size: 12.5px; }
+  .price { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .big { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(22,32,42,0.45);
+    align-items: center; justify-content: center; z-index: 50;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--panel); border-radius: 14px; width: 420px; max-width: 92vw;
+    padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h3 { font-family: 'Sora', sans-serif; font-size: 17px; margin-bottom: 4px; }
+  .modal .modal-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
+  .field { margin-bottom: 13px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .field input {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 7px;
+    font-size: 13.5px; font-family: 'Inter', sans-serif;
+  }
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 18px; }
+  .checkbox-row label { font-size: 13px; font-weight: 500; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+  .field-error { font-size: 11.5px; color: var(--danger); margin-top: 4px; display: none; }
+
+  @media (max-width: 780px) {
+    .sidebar { display: none; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .main { padding: 20px; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>📚 Book Management System</h1>
 
-  <div class="form-card">
-    <h3 id="formTitle">Add a New Book</h3>
+<aside class="sidebar">
+  <div class="brand"><span class="mark">📖</span> Ledger</div>
+  <div class="brand-sub">Book Inventory System</div>
+
+  <div class="nav-label">Overview</div>
+  <div class="nav-item active">◆ Dashboard</div>
+
+  <div class="nav-label">Browse by category</div>
+  <div class="cat-list" id="sidebarCats">
+    <div class="nav-item" onclick="filterCategory(null)"><span class="cat-dot"></span> All books</div>
+  </div>
+
+  <div class="sidebar-foot">
+    Book Management API<br>
+    Spring Boot · JPA · MySQL
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>Inventory Dashboard</h1>
+      <div class="subtitle" id="subtitle">Loading catalog…</div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search title, author, category…" oninput="applyFilter()">
+      <button class="btn btn-primary" onclick="openAddModal()">+ Add Book</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Total titles</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Available</div>
+      <div class="stat-value spine" id="statAvailable">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Categories</div>
+      <div class="stat-value" id="statCategories">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Catalog value</div>
+      <div class="stat-value" id="statValue">—</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 id="panelTitle">All Books</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Title</th><th>Author</th><th>Category</th><th>Price</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="bookTableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="big">No books here yet</div>
+      <div>Add your first title to start the catalog.</div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Add a New Book</h3>
+    <div class="modal-sub" id="modalSub">Fill in the details below.</div>
     <input type="hidden" id="bookId">
-    <div class="form-row">
-      <input type="text" id="title" placeholder="Title">
-      <input type="text" id="author" placeholder="Author">
-      <input type="text" id="category" placeholder="Category">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="title" placeholder="e.g. Atomic Habits">
     </div>
-    <div class="form-row">
-      <input type="number" id="price" placeholder="Price" step="0.01">
-      <label><input type="checkbox" id="available" checked> Available</label>
-      <button onclick="saveBook()" id="saveBtn">Add Book</button>
-      <button class="secondary" onclick="resetForm()" id="cancelBtn" style="display:none;">Cancel Edit</button>
+    <div class="field">
+      <label>Author</label>
+      <input type="text" id="author" placeholder="e.g. James Clear">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Category</label>
+        <input type="text" id="category" placeholder="e.g. Self-help">
+      </div>
+      <div class="field">
+        <label>Price (₹)</label>
+        <input type="number" id="price" placeholder="399" step="0.01">
+      </div>
+    </div>
+    <div class="field-error" id="formError">Title, author are required and price must be greater than 0.</div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="available" checked>
+      <label for="available">Currently available</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveBook()">Add Book</button>
     </div>
   </div>
-
-  <div class="search-card">
-    <div class="form-row">
-      <input type="text" id="searchCategory" placeholder="Search by category">
-      <button onclick="searchByCategory()">Search</button>
-      <button class="secondary" onclick="loadBooks()">Show All</button>
-    </div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>Title</th><th>Author</th><th>Category</th><th>Price</th><th>Available</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="bookTableBody"></tbody>
-  </table>
 </div>
 
 <script>
 const API_URL = 'http://localhost:8080/books';
+let allBooks = [];
+let activeCategory = null;
 
 async function loadBooks() {
+  document.getElementById('subtitle').innerText = 'Loading catalog…';
   const res = await fetch(API_URL);
-  const books = await res.json();
-  renderBooks(books);
+  allBooks = await res.json();
+  buildSidebarCategories();
+  renderStats();
+  applyFilter();
 }
 
-async function searchByCategory() {
-  const category = document.getElementById('searchCategory').value.trim();
-  if (!category) { loadBooks(); return; }
-  const res = await fetch(`${API_URL}/category/${encodeURIComponent(category)}`);
-  const books = await res.json();
-  renderBooks(books);
+function buildSidebarCategories() {
+  const cats = [...new Set(allBooks.map(b => b.category).filter(Boolean))].sort();
+  const wrap = document.getElementById('sidebarCats');
+  wrap.innerHTML = `<div class="nav-item ${activeCategory === null ? 'active' : ''}" onclick="filterCategory(null)"><span class="cat-dot"></span> All books</div>`;
+  cats.forEach(c => {
+    wrap.innerHTML += `<div class="nav-item ${activeCategory === c ? 'active' : ''}" onclick="filterCategory('${c.replace(/'/g, "\\'")}')"><span class="cat-dot"></span> ${c}</div>`;
+  });
 }
 
-function renderBooks(books) {
+function filterCategory(cat) {
+  activeCategory = cat;
+  document.getElementById('searchInput').value = '';
+  buildSidebarCategories();
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let books = allBooks;
+  if (activeCategory) books = books.filter(b => b.category === activeCategory);
+  if (q) {
+    books = books.filter(b =>
+      (b.title || '').toLowerCase().includes(q) ||
+      (b.author || '').toLowerCase().includes(q) ||
+      (b.category || '').toLowerCase().includes(q)
+    );
+  }
+  document.getElementById('panelTitle').innerText = activeCategory ? `Category: ${activeCategory}` : 'All Books';
+  document.getElementById('subtitle').innerText = `${allBooks.length} title${allBooks.length === 1 ? '' : 's'} in catalog`;
+  renderTable(books);
+}
+
+function renderStats() {
+  const total = allBooks.length;
+  const available = allBooks.filter(b => b.available).length;
+  const cats = new Set(allBooks.map(b => b.category).filter(Boolean)).size;
+  const value = allBooks.reduce((sum, b) => sum + (Number(b.price) || 0), 0);
+  document.getElementById('statTotal').innerText = total;
+  document.getElementById('statAvailable').innerText = available;
+  document.getElementById('statCategories').innerText = cats;
+  document.getElementById('statValue').innerText = '₹' + value.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function renderTable(books) {
   const tbody = document.getElementById('bookTableBody');
+  const empty = document.getElementById('emptyState');
   tbody.innerHTML = '';
+  if (books.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
   books.forEach(book => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${book.id}</td>
-      <td>${book.title}</td>
-      <td>${book.author}</td>
-      <td>${book.category ?? ''}</td>
-      <td>₹${book.price}</td>
-      <td>${book.available ? 'Yes' : 'No'}</td>
-      <td class="actions">
-        <button onclick='editBook(${JSON.stringify(book)})'>Edit</button>
-        <button class="danger" onclick="deleteBook(${book.id})">Delete</button>
+      <td class="book-id">#${book.id}</td>
+      <td class="book-title">${escapeHtml(book.title)}</td>
+      <td>${escapeHtml(book.author)}</td>
+      <td>${book.category ? `<span class="tag">${escapeHtml(book.category)}</span>` : '—'}</td>
+      <td class="price">₹${Number(book.price).toFixed(2)}</td>
+      <td>${book.available ? '<span class="avail-yes">● Available</span>' : '<span class="avail-no">● Checked out</span>'}</td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="btn-edit-text" onclick='editBook(${JSON.stringify(book)})'>Edit</button>
+        &nbsp;·&nbsp;
+        <button class="btn-danger-text" onclick="deleteBook(${book.id})">Delete</button>
       </td>
     `;
     tbody.appendChild(row);
   });
 }
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.innerText = str ?? '';
+  return div.innerHTML;
+}
+
+function openAddModal() {
+  resetForm();
+  document.getElementById('modalTitle').innerText = 'Add a New Book';
+  document.getElementById('modalSub').innerText = 'Fill in the details below.';
+  document.getElementById('saveBtn').innerText = 'Add Book';
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('title').focus();
+}
+
+function editBook(book) {
+  document.getElementById('bookId').value = book.id;
+  document.getElementById('title').value = book.title;
+  document.getElementById('author').value = book.author;
+  document.getElementById('category').value = book.category ?? '';
+  document.getElementById('price').value = book.price;
+  document.getElementById('available').checked = book.available;
+  document.getElementById('modalTitle').innerText = 'Edit Book';
+  document.getElementById('modalSub').innerText = `Updating "${book.title}"`;
+  document.getElementById('saveBtn').innerText = 'Save Changes';
+  document.getElementById('formError').style.display = 'none';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function resetForm() {
+  document.getElementById('bookId').value = '';
+  document.getElementById('title').value = '';
+  document.getElementById('author').value = '';
+  document.getElementById('category').value = '';
+  document.getElementById('price').value = '';
+  document.getElementById('available').checked = true;
+  document.getElementById('formError').style.display = 'none';
+}
+
 async function saveBook() {
   const id = document.getElementById('bookId').value;
   const book = {
-    title: document.getElementById('title').value,
-    author: document.getElementById('author').value,
-    category: document.getElementById('category').value,
+    title: document.getElementById('title').value.trim(),
+    author: document.getElementById('author').value.trim(),
+    category: document.getElementById('category').value.trim(),
     price: parseFloat(document.getElementById('price').value),
     available: document.getElementById('available').checked
   };
 
   if (!book.title || !book.author || !(book.price > 0)) {
-    alert('Title and Author are required, and Price must be greater than 0');
+    document.getElementById('formError').style.display = 'block';
     return;
   }
 
@@ -131,44 +479,24 @@ async function saveBook() {
   });
 
   if (!res.ok) {
-    alert('Something went wrong. Check console.');
+    alert('Something went wrong saving the book. Check the console for details.');
     console.error(await res.text());
     return;
   }
 
-  resetForm();
+  closeModal();
   loadBooks();
-}
-
-function editBook(book) {
-  document.getElementById('bookId').value = book.id;
-  document.getElementById('title').value = book.title;
-  document.getElementById('author').value = book.author;
-  document.getElementById('category').value = book.category ?? '';
-  document.getElementById('price').value = book.price;
-  document.getElementById('available').checked = book.available;
-  document.getElementById('formTitle').innerText = 'Edit Book';
-  document.getElementById('saveBtn').innerText = 'Update Book';
-  document.getElementById('cancelBtn').style.display = 'inline-block';
-}
-
-function resetForm() {
-  document.getElementById('bookId').value = '';
-  document.getElementById('title').value = '';
-  document.getElementById('author').value = '';
-  document.getElementById('category').value = '';
-  document.getElementById('price').value = '';
-  document.getElementById('available').checked = true;
-  document.getElementById('formTitle').innerText = 'Add a New Book';
-  document.getElementById('saveBtn').innerText = 'Add Book';
-  document.getElementById('cancelBtn').style.display = 'none';
 }
 
 async function deleteBook(id) {
-  if (!confirm('Delete this book?')) return;
+  if (!confirm('Delete this book from the catalog?')) return;
   await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
   loadBooks();
 }
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
 
 loadBooks();
 </script>
