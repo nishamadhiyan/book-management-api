@@ -8,4 +8,4 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["/bin/sh", "-c", "echo ---DATASOURCE_URL=$SPRING_DATASOURCE_URL--- && echo ---DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME--- && exec java -jar app.jar"]
+ENTRYPOINT ["/bin/sh", "-c", "exec java -Dspring.datasource.url=$SPRING_DATASOURCE_URL -Dspring.datasource.username=$SPRING_DATASOURCE_USERNAME -Dspring.datasource.password=$SPRING_DATASOURCE_PASSWORD -jar app.jar"]
