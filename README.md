@@ -21,6 +21,16 @@ src/main/java/com/example/bookmanagement
 
 ## Setup Instructions
 
+## Live Demo
+
+The application is deployed and live at:
+**https://book-management-api-4-709i.onrender.com/index.html**
+
+- Dashboard UI: `/index.html`
+- API base URL: `https://book-management-api-4-709i.onrender.com/books`
+
+Note: hosted on Render's free tier, so the first request after a period of inactivity may take 30-50 seconds to respond while the server wakes up.
+
 ### Local development
 
 The application can run locally without a database server by using the built-in H2 in-memory database:
