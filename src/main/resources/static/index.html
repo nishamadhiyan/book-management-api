@@ -248,9 +248,10 @@
       <div class="subtitle" id="subtitle">Loading catalog…</div>
     </div>
     <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Search title, author, category…" oninput="applyFilter()">
-      <button class="btn btn-primary" onclick="openAddModal()">+ Add Book</button>
-    </div>
+  <input type="text" id="searchInput" placeholder="Search title, author, category…" oninput="applyFilter()">
+  <input type="number" id="maxPriceInput" placeholder="Max price ₹" oninput="applyFilter()" style="width: 110px;">
+  <button class="btn btn-primary" onclick="openAddModal()">+ Add Book</button>
+</div>
   </div>
 
   <div class="stats">
@@ -379,11 +380,10 @@ function applyFilter() {
   let books = allBooks;
   if (activeCategory) books = books.filter(b => b.category === activeCategory);
   if (q) {
-    books = books.filter(b =>
-      (b.title || '').toLowerCase().includes(q) ||
-      (b.author || '').toLowerCase().includes(q) ||
-      (b.category || '').toLowerCase().includes(q)
-    );
+     const maxPrice = document.getElementById('maxPriceInput').value;
+  if (maxPrice) {
+    books = books.filter(b => Number(b.price) <= Number(maxPrice));
+  }
   }
   document.getElementById('panelTitle').innerText = activeCategory ? `Category: ${activeCategory}` : 'All Books';
   document.getElementById('subtitle').innerText = `${allBooks.length} title${allBooks.length === 1 ? '' : 's'} in catalog`;
