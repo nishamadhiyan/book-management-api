@@ -390,10 +390,10 @@ function applyFilter() {
   if (maxPrice) {
     books = books.filter(b => Number(b.price) <= Number(maxPrice));
   }
-  }
   document.getElementById('panelTitle').innerText = activeCategory ? `Category: ${activeCategory}` : 'All Books';
   document.getElementById('subtitle').innerText = `${allBooks.length} title${allBooks.length === 1 ? '' : 's'} in catalog`;
   renderTable(books);
+}
 
 
 function renderStats() {
